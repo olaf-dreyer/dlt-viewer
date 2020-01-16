@@ -2924,6 +2924,22 @@ void MainWindow::on_filterWidget_customContextMenuRequested(QPoint pos)
 
     menu.addSeparator();
 
+    action = new QAction("Set Selected Active", this);
+    if(!project.filter->selectedItems().size())
+        action->setEnabled(false);
+    else
+        connect(action, SIGNAL(triggered()), this, SLOT(on_action_menuFilter_SetSelectedActive_triggered()));
+    menu.addAction(action);
+
+    action = new QAction("Set Selected Inactive", this);
+    if(!project.filter->selectedItems().size())
+        action->setEnabled(false);
+    else
+        connect(action, SIGNAL(triggered()), this, SLOT(on_action_menuFilter_SetSelectedInactive_triggered()));
+    menu.addAction(action);
+
+    menu.addSeparator();
+
     action = new QAction("Set All Active", this);
     if(!project.filter->topLevelItemCount())
         action->setEnabled(false);
@@ -6336,7 +6352,7 @@ void MainWindow::on_action_menuFilter_Delete_triggered()
     on_filterWidget_itemSelectionChanged();
 }
 
-void MainWindow::on_action_menuFilter_SetAllActive_triggered()
+void MainWindow::on_action_menuFilter_SetSelectedActive_triggered()
 {
     QTreeWidget *widget;
 
@@ -6356,14 +6372,54 @@ void MainWindow::on_action_menuFilter_SetAllActive_triggered()
             tmp->setCheckState(0, Qt::Checked);
         }
     }
+
+    applyConfigEnabled(true);
+
+    on_filterWidget_itemSelectionChanged();
+}
+
+void MainWindow::on_action_menuFilter_SetSelectedInactive_triggered()
+{
+    QTreeWidget *widget;
+
+    /* get currently visible filter list in user interface */
+    if(ui->tabPFilter->isVisible()) {
+        widget = project.filter;
+    }
     else
+        return;
+
+    if(widget->selectedItems().size())
     {
-        for(int i = 0; i < widget->topLevelItemCount(); i++)
+        for(int i = 0; i < widget->selectedItems().size(); i++)
         {
-            FilterItem *tmp = (FilterItem*)widget->topLevelItem(i);
-            tmp->filter.enableFilter = true;
-            tmp->setCheckState(0, Qt::Checked);
+            FilterItem *tmp = (FilterItem*)widget->selectedItems().at(i);
+            tmp->filter.enableFilter = false;
+            tmp->setCheckState(0, Qt::Unchecked);
         }
+    }
+
+    applyConfigEnabled(true);
+
+    on_filterWidget_itemSelectionChanged();
+}
+
+void MainWindow::on_action_menuFilter_SetAllActive_triggered()
+{
+    QTreeWidget *widget;
+
+    /* get currently visible filter list in user interface */
+    if(ui->tabPFilter->isVisible()) {
+        widget = project.filter;
+    }
+    else
+        return;
+
+    for(int i = 0; i < widget->topLevelItemCount(); i++)
+    {
+        FilterItem *tmp = (FilterItem*)widget->topLevelItem(i);
+        tmp->filter.enableFilter = true;
+        tmp->setCheckState(0, Qt::Checked);
     }
 
     applyConfigEnabled(true);
@@ -6382,23 +6438,11 @@ void MainWindow::on_action_menuFilter_SetAllInactive_triggered()
     else
         return;
 
-    if(widget->selectedItems().size())
+    for(int i = 0; i < widget->topLevelItemCount(); i++)
     {
-        for(int i = 0; i < widget->selectedItems().size(); i++)
-        {
-            FilterItem *tmp = (FilterItem*)widget->selectedItems().at(i);
-            tmp->filter.enableFilter = false;
-            tmp->setCheckState(0, Qt::Unchecked);
-        }
-    }
-    else
-    {
-        for(int i = 0; i < widget->topLevelItemCount(); i++)
-        {
-            FilterItem *tmp = (FilterItem*)widget->topLevelItem(i);
-            tmp->filter.enableFilter = false;
-            tmp->setCheckState(0, Qt::Unchecked);
-        }
+        FilterItem *tmp = (FilterItem*)widget->topLevelItem(i);
+        tmp->filter.enableFilter = false;
+        tmp->setCheckState(0, Qt::Unchecked);
     }
 
     applyConfigEnabled(true);

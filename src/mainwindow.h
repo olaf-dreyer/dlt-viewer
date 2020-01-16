@@ -494,6 +494,8 @@ private slots:
     void on_action_menuFilter_Clear_all_triggered();
     void on_action_menuFilter_Duplicate_triggered();
     void on_action_menuFilter_Append_Filters_triggered();
+    void on_action_menuFilter_SetSelectedActive_triggered();
+    void on_action_menuFilter_SetSelectedInactive_triggered();
     void on_action_menuFilter_SetAllActive_triggered();
     void on_action_menuFilter_SetAllInactive_triggered();
 
